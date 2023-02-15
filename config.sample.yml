@@ -1,0 +1,6 @@
+github:
+    user: skrpr-jelmer
+    auth_key: YOUR_KEY_HERE
+
+    repos:
+        - skrpr-jelmer/xbar-plugins
