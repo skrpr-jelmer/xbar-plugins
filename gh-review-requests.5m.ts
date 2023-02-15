@@ -4,7 +4,7 @@ import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest?dts';
 import { MenuItem } from 'https://deno.land/x/xbar@v2.1.0/src/types.d.ts';
 import { parse } from 'https://deno.land/std@0.177.0/encoding/yaml.ts';
 
-const config = parse(await Deno.readTextFile('./config.yml'));
+const config = parse(await Deno.readTextFile('./.config.yml'));
 
 // Your tracked repos
 const REPOS = config.github.repos.map((repo: string) => repo.split('/'));
