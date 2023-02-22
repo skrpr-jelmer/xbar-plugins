@@ -68,6 +68,10 @@ for (const [owner, repo] of REPOS) {
             return reviews;
         }, {});
 
+        for (const reviewer of pull.requested_reviewers) {
+            delete latestReviewsByLogin[reviewer.login];
+        }
+
         const approvedReviewsCount = Object.values(latestReviewsByLogin).reduce(
             (total, review) => total + (review.state === 'APPROVED' ? 1 : 0),
             0
@@ -85,6 +89,10 @@ for (const [owner, repo] of REPOS) {
                     ? '#8ace8a'
                     : '#f7a691',
             submenu: [
+                {
+                    text: `${pull.base.ref} < ${pull.head.ref}`,
+                },
+                separator,
                 {
                     text: 'Open Pull Request',
                     href: pull.html_url,
