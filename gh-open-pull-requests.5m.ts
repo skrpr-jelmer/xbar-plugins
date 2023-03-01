@@ -82,7 +82,7 @@ for (const [owner, repo] of REPOS) {
         }
 
         output.push({
-            text: `#${pull.number} (${approvedReviewsCount}/${MINIMAL_APPROVES}) - ${pull.title}`,
+            text: `#${pull.number} (${approvedReviewsCount}/${MINIMAL_APPROVES}) - ${pull.title.replace('|', 'ǀ')}`,
             href: pull.html_url,
             color:
                 approvedReviewsCount >= MINIMAL_APPROVES
