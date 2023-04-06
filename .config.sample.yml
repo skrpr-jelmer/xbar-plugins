@@ -4,3 +4,6 @@ github:
 
     repos:
         - skrpr-jelmer/xbar-plugins
+
+    ignored_authors:
+        - dependabot[bot]

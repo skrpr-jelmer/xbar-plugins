@@ -1,6 +1,6 @@
 #!/usr/bin/env -S -P/${HOME}/.deno/bin:/usr/local/bin:/opt/homebrew/bin deno run --allow-read --allow-net
 import { xbar, separator } from 'https://deno.land/x/xbar@v2.1.0/mod.ts';
-import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest?dts';
+import { Octokit } from 'npm:@octokit/rest';
 import { MenuItem } from 'https://deno.land/x/xbar@v2.1.0/src/types.d.ts';
 import { parse } from 'https://deno.land/std@0.177.0/encoding/yaml.ts';
 
@@ -29,7 +29,8 @@ for (const [owner, repo] of REPOS) {
         (pull) =>
             pull.requested_reviewers.filter(
                 (reviewer) => reviewer.login === config.github.user
-            ).length
+            ).length > 0 &&
+            !config.github.ignored_authors.includes(pull.user.login)
     );
 
     if (reviewRequestedPulls.length === 0) {
