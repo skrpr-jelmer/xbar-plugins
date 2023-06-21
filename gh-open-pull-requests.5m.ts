@@ -52,7 +52,9 @@ for (const [owner, repo] of REPOS) {
     });
 
     const myPulls = pulls.filter(
-        (pull) => pull.user?.login === config.github.user
+        (pull) =>
+            pull.user?.login === config.github.user ||
+            pull.assignees?.some((user) => user.login === config.github.user)
     );
 
     for (const pull of myPulls) {
