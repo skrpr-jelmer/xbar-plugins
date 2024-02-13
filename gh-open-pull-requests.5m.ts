@@ -4,6 +4,9 @@ import { xbar, separator } from 'https://deno.land/x/xbar@v2.1.0/mod.ts';
 import { MenuItem } from 'https://deno.land/x/xbar@v2.1.0/src/types.d.ts';
 import { Octokit } from 'npm:@octokit/rest';
 import { components } from 'npm:@octokit/openapi-types';
+import { formatDistanceToNow } from 'npm:date-fns';
+
+const start = new Date();
 
 interface Config {
     github: {
@@ -30,11 +33,24 @@ const output: MenuItem[] = [];
 let nonApprovedPulls = 0;
 
 for (const [owner, repo] of REPOS) {
-    const { data: pulls } = await octokit.rest.pulls.list({
-        owner,
-        repo,
-        status: 'open',
-    });
+    const pulls = [];
+    let page = 1;
+
+    while (page < 100) {
+        const { data } = await octokit.rest.pulls.list({
+            owner,
+            repo,
+            status: 'open',
+            per_page: 100,
+            page: page++,
+        });
+
+        if (data.length === 0) {
+            break;
+        }
+
+        pulls.push(...data);
+    }
 
     output.push({
         text: `${owner}/${repo}`,
@@ -168,7 +184,10 @@ xbar([
     separator,
     ...output,
     {
-        text: `Refreshed at ${new Date().toLocaleTimeString()}`,
+        text: `Refreshed at ${new Date().toLocaleTimeString()} in ${formatDistanceToNow(
+            start,
+            { includeSeconds: true }
+        )}`,
         refresh: true,
     },
 ]);

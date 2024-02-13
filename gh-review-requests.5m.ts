@@ -3,6 +3,9 @@ import { xbar, separator } from 'https://deno.land/x/xbar@v2.1.0/mod.ts';
 import { Octokit } from 'npm:@octokit/rest';
 import { MenuItem } from 'https://deno.land/x/xbar@v2.1.0/src/types.d.ts';
 import { parse } from 'https://deno.land/std@0.177.0/encoding/yaml.ts';
+import { formatDistanceToNow } from 'npm:date-fns';
+
+const start = new Date();
 
 const config = parse(await Deno.readTextFile('./.config.yml'));
 
@@ -19,17 +22,33 @@ const output: MenuItem[] = [];
 let reviewRequestedCount = 0;
 
 for (const [owner, repo] of REPOS) {
-    const { data: pulls } = await octokit.rest.pulls.list({
-        owner,
-        repo,
-        status: 'open',
-    });
+    const pulls = [];
+    let page = 1;
+
+    while (page < 100) {
+        const { data } = await octokit.rest.pulls.list({
+            owner,
+            repo,
+            status: 'open',
+            per_page: 100,
+            page: page++,
+        });
+
+        if (data.length === 0) {
+            break;
+        }
+
+        pulls.push(...data);
+    }
 
     const reviewRequestedPulls = pulls.filter(
         (pull) =>
             pull.requested_reviewers.filter(
                 (reviewer) => reviewer.login === config.github.user
             ).length > 0 &&
+            pull.assignees?.filter(
+                (assignee) => assignee.login === config.github.user
+            ).length === 0 &&
             !config.github.ignored_authors.includes(pull.user.login)
     );
 
@@ -86,7 +105,10 @@ xbar([
     separator,
     ...output,
     {
-        text: `Refreshed at ${new Date().toLocaleTimeString()}`,
+        text: `Refreshed at ${new Date().toLocaleTimeString()} in ${formatDistanceToNow(
+            start,
+            { includeSeconds: true }
+        )}`,
         refresh: true,
     },
 ]);
